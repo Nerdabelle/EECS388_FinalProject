@@ -161,26 +161,19 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
 
    // Extract the values of angle, speed and duration inside this function
    // And place them into the correct variables that are passed in
+    //int i = 0;
+    /*
+    while(1){
+        str[i]= ser_read(1);
+        if(str[i-2]=='d' && str[i-1]==':'){
+            break;
+        }
+        i++;
+    }
+    */
     ser_readline(devid, 20, str);
-    int newCutOff = 0;
-    int * holder = 0;
-    //char * tempStr = "0, 1, 2\n";
-    char * token = malloc(20 * sizeof(char));
+    sscanf(str, "a:%d s:%d d:%d", angle, speed, duration);
 
-    token = strtok(str, ",");
-    newCutOff = strlen(token);
-    sscanf(token, "%d", holder);
-    angle = holder;
-    printf("%p", (void *) &holder);
-    token = strtok(str+newCutOff, ",");
-    newCutOff = strlen(token);
-    sscanf(token, "%d", holder);
-    speed = holder;
-    printf("%p", (void *) &holder);
-    token = strtok(str+newCutOff, ",");
-    sscanf(token, "%d", holder);
-    duration = holder;
-    printf("%p", (void *) &holder);
     free(str);
 }
 
@@ -198,7 +191,7 @@ int main()
 
     // initialize UART channels
     ser_setup(0); // uart0 (receive from raspberry pi)
-    ser_setup(1);
+    ser_setup(1);  
     printf("Setup completed.\n");
     printf("Begin the main loop.\n");
     
@@ -216,23 +209,24 @@ int main()
               call steering(), driveForward/Reverse() and delay with the extracted values
           }
         */
+
         if(ser_isready(1))
         {
-            int ang, spd, dur;
-            raspberrypi_int_handler(1, &ang, &spd, &dur);
-            steering(ang);
-            if(spd>0){
-                driveForward(spd);
+            raspberrypi_int_handler(1, &angle, &speed, &duration);
+            printf("Angle:%d Speed:%d Duration:%d\n", angle, speed, duration);
+            
+            steering(angle);
+            if(speed>0){
+                driveForward(speed);
             }
-            else if(spd<0){
-                driveReverse(spd);
+            else if(speed<0){
+                driveReverse(speed*-1);
             }
             else{
                 stopMotor();
             }
-            delay(dur*1000);
+            delay(duration*1000);
         }
     }
     return 0;
 }
-
