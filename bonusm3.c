@@ -159,6 +159,8 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
     char * str = malloc(20 * sizeof(char)); // you can use this to store the received string
                                             // it is the same as char str[20]                
     char * str2 = malloc(20 * sizeof(char));
+    //using malloc to allocate space for all 3 variables
+    int * angle2= malloc(sizeof(int)), * speed2= malloc(sizeof(int)), * duration2 = malloc(sizeof(int));
    // Extract the values of angle, speed and duration inside this function
    // And place them into the correct variables that are passed in
     //int i = 0;
@@ -173,15 +175,19 @@ void raspberrypi_int_handler(int devid, int * angle, int * speed, int * duration
     */
     ser_readline(devid, 20, str);
     ser_readline(devid, 20, str2);
-    printf("%s",str);
-    printf("%s",str2);
-    if(strncmp(str,str2,20) == 0){
+    //printf("%s\n",str);
+    //printf("%s\n",str2);
+    sscanf(str, "a:%d s:%d d:%d", angle, speed, duration);
+    sscanf(str2, "a:%d s:%d d:%d", angle2, speed2, duration2);
+    printf("a:%p s:%p d:%p\n", *angle, *speed, *duration);
+    printf("a:%p s:%p d:%p\n", *angle2, *speed2, *duration2);
+    if(*angle==*angle2 && *speed==*speed2 && *duration==*duration2){
         printf("The files match, proceding to next step.\n");
-        sscanf(str, "a:%d s:%d d:%d", angle, speed, duration);
+        //sscanf(str, "a:%d s:%d d:%d", angle, speed, duration);
     }else{
         printf("Files do not match, proceding to Emergency Routine.\n");
         stopMotor();
-        duration=-1;
+        //duration=-1;
     }
     free(str);
 }
@@ -222,9 +228,6 @@ int main()
         if(ser_isready(1))
         {
             raspberrypi_int_handler(1, &angle, &speed, &duration);
-            if(duration==-1){
-                continue;
-            }
             printf("Angle:%d Speed:%d Duration:%d\n", angle, speed, duration);
             
             steering(angle);
