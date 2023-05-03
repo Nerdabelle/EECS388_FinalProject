@@ -12,19 +12,20 @@ with open('Data1.csv', 'r') as file:
         next(reader) #skip first column
         next(reader2) #skip first column
         for row1, row2 in zip(reader, reader2):
-            angle = str(row1[0])
-            speed = str(row1[1])
-            duration = str(row1[2])
+            angle = str(row1[1])
+            speed = str(row1[2])
+            duration = str(row1[3])
             command_str = "a:" + angle + " s:" + speed + " d:" + duration + "\n"
             print(command_str)
             ser.write(bytes(command_str, 'utf-8'))
-            angle = str(row2[0])
-            speed = str(row2[1])
-            duration = str(row2[2])
+            angle = str(row2[1])
+            speed = str(row2[2])
+            duration = str(row2[3])
             command_str = "a:" + angle + " s:" + speed + " d:" + duration + "\n"
             print(command_str)
             ser.write(bytes(command_str, 'utf-8'))
             time.sleep(int(duration)+1)
 
 ser.close()
+
 
